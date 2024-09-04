@@ -1,0 +1,166 @@
+package game
+
+class Game {
+    private var bottomRange:Int = 0
+    private var topRange:Int = 999
+    var numInput: Array<Int?> = Array(10) { null }
+
+    fun play() {
+        setRange()
+        printRules()
+        playRounds()
+    }
+
+    private fun playRounds() {
+        var lost:Boolean = false
+        while (!lost) {
+            for (i in 0..10){
+                val num = (bottomRange..topRange).random()
+                printArray(10-i, num)
+                while (true) {
+                    println("Choose a ranking (1-10) for 'q' to quit:")
+                    var input = readLine()
+                    when {
+                        input == null -> println("Invalid input")
+                        input == "q" -> break
+                        input.isEmpty() -> println("Input cannot be empty")
+                        else -> {
+                            try {
+                                val ranking = input.toInt()
+                                if (ranking in 1..10) {
+                                    placeValue(ranking, num)
+                                } else {
+                                    println("Ranking must be between 1 an 10")
+                                }
+                            } catch (e: NumberFormatException) {
+                                println("Invalid input")
+                            }
+                        }
+                    }
+                    if (input != null) {
+                        if (input == "q") {
+                            break;
+                        }
+                        else if (input.isNotEmpty())
+                        else {
+                            if (input < 1 || input > 10) {
+
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun placeValue(index:Int, currNum: Int) {
+        var ind = index
+        while (true) {
+            if (numInput[ind] != null) {
+                println("Spot $ind is taken, enter a different spot")
+                ind = readLine().toInt()
+            }
+            else {
+                numInput[ind] = currNum
+                break;
+            }
+        }
+    }
+
+    private fun printArray(remaining:Int, currNum:Int) {
+        println("Remaining placements: $remaining")
+        println("Generated number: $currNum")
+        for (i in numInput.indices) {
+            if (numInput[i] != null) {
+                print("Rank ")
+                print(i+1)
+                println(": $numInput[i]")
+            }
+            else {
+                print("Rank ")
+                print(i+1)
+                println(": -")
+            }
+        }
+    }
+
+    private fun printRules() {
+        println("Rules: 10 random numbers between $bottomRange and $topRange will be generated. Your goal is to place the randomly generated numbers in ascending rank order with rank 1 being the lowest and rank 10 being the highest number.")
+        println()
+        println("You must rank each number as it is generated and numbers cannot change rank after being placed.")
+        println()
+        println("Numbers can only be placed in an unranked spot and between numbers above/below its value in ascending rank order.")
+        println()
+        println("In the example below, the randomly generated number (576) MUST be placed in rank 3:")
+        println()
+        println("Remaining placements: 9")
+        println("Generated number: 576")
+        println("Rank 1: -")
+        println("Rank 1: 500")
+        println("Rank 1: -")
+        println()
+        println("The game is over when either a) 10 randomly generated numbers have been correctly placed or b) there are no more valid ranks to place the last randomly generated number.")
+        println()
+        println("Good luck!")
+        println("Enter any key to accept the rules")
+        val trash = readLine()
+    }
+
+    private fun setRange() {
+        println("Welcome to the random number rank game!")
+        val message = "If you would like to play with the default number range (0 to 999), press enter. If not, enter the bottom number of the range you would like "
+        val bRange = getBottomRange(message)
+        if (bRange == null) {
+            println("Game ended")
+            return
+        }
+        bottomRange = bRange
+
+        val message1 = "If you would like to play with the default number range (0 to 999), press enter. If not, enter the top number of the range you would like "
+        val tRange = getTopRange(message1)
+        if (tRange == null) {
+            println("Game ended")
+            return
+        }
+        topRange = tRange
+    }
+
+    private fun getBottomRange(prompt: String): Int? {
+        while (true) {
+            println("$prompt (or enter 'q' to quit)")
+            val input = readLine()
+            if (input != null) {
+                when {
+                    input == "q" -> return null
+                    input.isEmpty() -> return 0
+                    else -> {
+                        try {
+                            return input.toInt()
+                        } catch (e: NumberFormatException) {
+                            println("Invalid entry. Please enter a valid integer or 'q' to quit.")
+                        }
+                    }
+                }
+            }
+        }
+    }
+    private fun getTopRange(prompt: String): Int? {
+        while (true) {
+            println("$prompt (or enter 'q' to quit)")
+            val input = readLine()
+            if (input != null) {
+                when {
+                    input == "q" -> return null
+                    input.isEmpty() -> return 999
+                    else -> {
+                        try {
+                            return input.toInt()
+                        } catch (e: NumberFormatException) {
+                            println("Invalid entry. Please enter a valid integer or 'q' to quit.")
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
