@@ -8,27 +8,45 @@ class Game {
     fun play() {
         setRange()
         printRules()
-        playRounds()
+        if (playRounds()) {
+            println("game won")
+        }
+        else {
+            println("game lost")
+        }
     }
 
-    private fun playRounds() {
+    private fun playRounds():Boolean {
         var lost:Boolean = false
         while (!lost) {
-            for (i in 0..10){
+            for (i in 0..9){
                 val num = (bottomRange..topRange).random()
-                printArray(10-i, num)
+                if (checkForLoss()) {
+                    println("numbers weren't in ascending order")
+                    printArray(10 - i, num)
+                    return false
+                }
+                if (!checkIfPlaceable(num)) {
+                    printArray(10 - i, num)
+                    println("Your next number is $num, which is not placeable")
+                    return false
+                }
                 while (true) {
+                    printArray(10-i, num)
                     println("Choose a ranking (1-10) for 'q' to quit:")
-                    var input = readLine()
+                    var input = readlnOrNull()
                     when {
                         input == null -> println("Invalid input")
-                        input == "q" -> break
+                        input == "q" -> return false
                         input.isEmpty() -> println("Input cannot be empty")
                         else -> {
                             try {
                                 val ranking = input.toInt()
                                 if (ranking in 1..10) {
-                                    placeValue(ranking, num)
+                                    if (!placeValue(ranking, num)) {
+                                        return false
+                                    }
+                                     break
                                 } else {
                                     println("Ranking must be between 1 an 10")
                                 }
@@ -37,32 +55,82 @@ class Game {
                             }
                         }
                     }
-                    if (input != null) {
-                        if (input == "q") {
-                            break;
-                        }
-                        else if (input.isNotEmpty())
-                        else {
-                            if (input < 1 || input > 10) {
+                }
+            }
+            return true
+        }
+        return true
+    }
 
-                            }
+    private fun checkIfPlaceable(currNum: Int): Boolean {
+        for (i in 0 until 10) {
+            val curr = numInput[i]
+            if (curr != null) {
+                if (currNum > curr){
+                    for (j in i+1 .. 9) {
+                        if (numInput[j] == null) {
+                            return true
                         }
+                        else if (numInput[j]!! > currNum){
+                            return false
+                        }
+                    }
+                }
+                else {
+                    if (i == 0) {
+                        return false
                     }
                 }
             }
         }
+        return true
     }
 
-    private fun placeValue(index:Int, currNum: Int) {
+    private fun checkForLoss():Boolean {
+        var prev:Int? = null
+        var ascending = true
+        for (element in numInput){
+            if (element != null) {
+                if (prev == null) {
+                    prev = element
+                }
+                else if (element < prev) {
+                    ascending = false
+                    break
+                }
+                prev = element
+            }
+        }
+        return !ascending
+    }
+
+    private fun placeValue(index:Int, currNum: Int):Boolean {
         var ind = index
         while (true) {
-            if (numInput[ind] != null) {
-                println("Spot $ind is taken, enter a different spot")
-                ind = readLine().toInt()
+            if (numInput[ind - 1] != null) {
+                println("Spot $ind is taken, enter a different spot (or 'q' to quit)")
+                var input = readlnOrNull()
+                when {
+                    input == null -> println("Invalid input")
+                    input == "q" -> return false
+                    input.isEmpty() -> println("Input cannot be empty")
+                    else -> {
+                        try {
+                            val newRanking = input.toInt()
+                            if (newRanking in 1..10) {
+                                ind = newRanking
+                            } else {
+                                println("Ranking must be between 1 an 10")
+                            }
+                        } catch (e: NumberFormatException) {
+                            println("Invalid input")
+                        }
+                    }
+                }
             }
             else {
-                numInput[ind] = currNum
-                break;
+                numInput[ind-1] = currNum
+                return true
             }
         }
     }
@@ -74,7 +142,7 @@ class Game {
             if (numInput[i] != null) {
                 print("Rank ")
                 print(i+1)
-                println(": $numInput[i]")
+                println(": " + numInput[i])
             }
             else {
                 print("Rank ")
